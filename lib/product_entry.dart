@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'product.dart';
+import 'dart:convert';
+import 'product_list.dart';
 
 class ProductAdd extends StatefulWidget {
   @override
@@ -12,31 +15,25 @@ class _ProductAddState extends State<ProductAdd> {
   final quantityController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.black,
-
       appBar: AppBar(
-        // backgroundColor: Colors.grey[800],
         title: Text('Add Product'),
         centerTitle: true,
         elevation: 0,
       ),
-
       body: SingleChildScrollView(
-
         child: Container(
-
           child: Center(
-
             child: Column(
-
               crossAxisAlignment: CrossAxisAlignment.center,
-
               children: <Widget>[
-
                 SizedBox(height: 30.0),
-
                 SizedBox(
                   width: 300,
                   child: TextField(
@@ -47,9 +44,7 @@ class _ProductAddState extends State<ProductAdd> {
                     ),
                   ),
                 ),
-
                 SizedBox(height: 30.0),
-
                 SizedBox(
                   width: 300,
                   child: TextField(
@@ -60,9 +55,7 @@ class _ProductAddState extends State<ProductAdd> {
                     ),
                   ),
                 ),
-
                 SizedBox(height: 30.0),
-
                 SizedBox(
                   width: 300,
                   child: TextField(
@@ -73,33 +66,23 @@ class _ProductAddState extends State<ProductAdd> {
                     ),
                   ),
                 ),
-
                 SizedBox(height: 50.0),
-
                 ElevatedButton(
-                  onPressed: () {
-                    String name = textController.text;
-                    int price = 0;
-                    int quantity = 0;
+                  onPressed: () async {
+                    Product newProduct = createNewProduct();
 
-                    try {
-                      price = int.parse(priceController.text);
-                    } catch (e) {
-                      print('Invalid price format: ${priceController.text}');
-                    }
+                    if (newProduct.prodPrice != 0 && newProduct.prodQuantity != 0) {
+                      // Fetch the existing products from SharedPreferences
+                      List<Product> productList = await fetchProductsFromLocalStorage();
 
-                    try {
-                      quantity = int.parse(quantityController.text);
-                    } catch (e) {
-                      print(
-                          'Invalid quantity format: ${quantityController.text}');
-                    }
+                      // Add the new product to the list
+                      productList.add(newProduct);
 
-                    if (price != null && quantity != null) {
-                      saveProductToLocalStorage(name, price, quantity);
-                      print('$name');
-                      print('$price');
-                      print('$quantity');
+                      // Save the updated list back to SharedPreferences
+                      saveProductsToLocalStorage(productList);
+
+                      // Navigate to the product list page
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => ProductList()));
                     }
                   },
                   child: Text('Submit'),
@@ -112,10 +95,39 @@ class _ProductAddState extends State<ProductAdd> {
     );
   }
 
-  void saveProductToLocalStorage(String prodName, int prodPrice, int prodQuantity) async{
+  Product createNewProduct() {
+    String name = textController.text;
+    int price = 0;
+    int quantity = 0;
+
+    try {
+      price = int.parse(priceController.text);
+    } catch (e) {
+      print('Invalid price format: ${priceController.text}');
+    }
+
+    try {
+      quantity = int.parse(quantityController.text);
+    } catch (e) {
+      print('Invalid quantity format: ${quantityController.text}');
+    }
+
+    return Product(name, price, quantity);
+  }
+
+  Future<List<Product>> fetchProductsFromLocalStorage() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    sp.setString('prodName', prodName);
-    sp.setInt('prodPrice', prodPrice);
-    sp.setInt('prodQuantity', prodQuantity);
+    List<String> productsJsonList = sp.getStringList('products') ?? [];
+
+    return productsJsonList
+        .map((productJson) => Product.fromJson(jsonDecode(productJson)))
+        .toList();
+  }
+
+  void saveProductsToLocalStorage(List<Product> productList) async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    List<String> productsJsonList = productList.map((product) => jsonEncode(product.toJson())).toList();
+    sp.setStringList('products', productsJsonList);
   }
 }
+

@@ -7,7 +7,7 @@ void main() =>
   runApp(MaterialApp(
     initialRoute: '/',
     routes: {
-      '/': (context) => Home(),
+      '/': (context) => ProductList(),
       '/add': (context) => ProductAdd(),
       '/list': (context) => ProductList()
     },
