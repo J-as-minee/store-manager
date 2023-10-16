@@ -67,11 +67,14 @@ class _ProductAddState extends State<ProductAdd> {
                   ),
                 ),
                 SizedBox(height: 50.0),
+
                 ElevatedButton(
                   onPressed: () async {
+
                     Product newProduct = createNewProduct();
 
                     if (newProduct.prodPrice != 0 && newProduct.prodQuantity != 0) {
+
                       // Fetch the existing products from SharedPreferences
                       List<Product> productList = await fetchProductsFromLocalStorage();
 

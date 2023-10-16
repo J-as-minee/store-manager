@@ -40,17 +40,20 @@ class _ProductListState extends State<ProductList> {
 
               SizedBox(height: 50.0),
 
-              ElevatedButton(
-                  onPressed: (){
+              Align(
+                alignment: Alignment.center,
+                child: ElevatedButton(
+                  onPressed: () {
                     Navigator.pushNamed(context, '/add');
                   },
-                child: Container(
-                  width: 250,
-                  child: Text(
-                    'ADD PRODUCT'
+                  child: Text('ADD PRODUCT'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    minimumSize: Size(150, 50),
                   ),
                 ),
               ),
+
 
               for (var product in productList)
                 ListTile(
