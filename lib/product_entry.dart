@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'product.dart';
 import 'dart:convert';
 import 'product_list.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProductAdd extends StatefulWidget {
   @override
@@ -14,10 +15,16 @@ class _ProductAddState extends State<ProductAdd> {
   final priceController = TextEditingController();
   final quantityController = TextEditingController();
 
+  final String name = "";
+  final int price = 0;
+  final int quantity =0;
+
   @override
   void initState() {
     super.initState();
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -75,19 +82,19 @@ class _ProductAddState extends State<ProductAdd> {
 
                     if (newProduct.prodPrice != 0 && newProduct.prodQuantity != 0) {
 
-                      // Fetch the existing products from SharedPreferences
-                      List<Product> productList = await fetchProductsFromLocalStorage();
+                      // List<Product> productList = await fetchProductsFromLocalStorage();
+                      // productList.add(newProduct);
+                      // saveProductsToLocalStorage(productList);
 
-                      // Add the new product to the list
-                      productList.add(newProduct);
+                      print('before adding');
+                      saveProductsToFireStore(newProduct);
+                      print('after adding');
 
-                      // Save the updated list back to SharedPreferences
-                      saveProductsToLocalStorage(productList);
 
-                      // Navigate to the product list page
                       Navigator.push(context, MaterialPageRoute(builder: (context) => ProductList()));
                     }
                   },
+
                   child: Text('Submit'),
                 ),
               ],
@@ -96,6 +103,22 @@ class _ProductAddState extends State<ProductAdd> {
         ),
       ),
     );
+  }
+
+  Future<void> saveProductsToFireStore(Product product) async {
+    CollectionReference products = FirebaseFirestore.instance.collection('products');
+
+    try {
+      await products.add({
+        'name': product.prodName,
+        'price': product.prodPrice,
+        'quantity': product.prodQuantity,
+      });
+
+      print("Product Added");
+    } catch (e) {
+      print("Failed to add product: $e");
+    }
   }
 
   Product createNewProduct() {

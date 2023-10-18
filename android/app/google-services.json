@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "243313120936",
+    "project_id": "store-manager-a3503",
+    "storage_bucket": "store-manager-a3503.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:243313120936:android:b5ed5a06378795aac7d49d",
+        "android_client_info": {
+          "package_name": "com.example.store_manager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfVLhlMT0eD0yQ7cRa5mcuE8XQ3LXjl9Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

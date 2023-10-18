@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'product.dart';
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProductList extends StatefulWidget {
   @override
@@ -20,16 +21,15 @@ class _ProductListState extends State<ProductList> {
   @override
   void initState() {
     super.initState();
-    retrieveProductInfo();
+    // retrieveProductInfo();
+    getProductsFromFirestore();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.black,
 
       appBar: AppBar(
-        // backgroundColor: Colors.grey[800],
         title: Text('List of Products'),
         centerTitle: true,
         elevation: 0,
@@ -73,12 +73,35 @@ class _ProductListState extends State<ProductList> {
     );
   }
 
+  Future<List<Product>> getProductsFromFirestore() async {
+    List<Product> products = [];
+
+    try {
+      CollectionReference productsCollection = FirebaseFirestore.instance.collection('products');
+      QuerySnapshot querySnapshot = await productsCollection.get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        for (QueryDocumentSnapshot document in querySnapshot.docs) {
+          Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+          Product product = Product.fromJson(data);
+          products.add(product);
+        }
+      } else {
+        print('The collection is empty');
+      }
+    } catch (e) {
+      print('Error while fetching products from Firestore: $e');
+    }
+
+    return products;
+  }
+
   void retrieveProductInfo() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     // prodName = sp.getString('prodName') ?? '';
     // prodPrice = sp.getInt('prodPrice') ?? 0;
     // prodQuantity = sp.getInt('prodQuantity') ?? 0;
-    List<String> productsJsonList = sp.getStringList('products') ?? [];
+    List<String> productsJsonList = sp.getStringList('') ?? [];
 
     productList = productsJsonList
         .map((productJson) => Product.fromJson(jsonDecode(productJson)))
